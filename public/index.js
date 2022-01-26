@@ -164,7 +164,7 @@ function asyncWrapper(key,locations,options){
 async function postRoute(key,locations,options){
   try{
     const obj={locations,...options};
-    const res=await axios.post(`http://www.mapquestapi.com/directions/v2/alternateroutes?key=${key}`,obj)
+    const res=await axios.post(`https://www.mapquestapi.com/directions/v2/alternateroutes?key=${key}`,obj)
     //console.log(res.data);
     resp=res.data.route.legs[0].maneuvers;
     if(!btnContainer.innerHTML){
