@@ -4,7 +4,6 @@ import {faUser,faEnvelope,faLock} from '@fortawesome/free-solid-svg-icons'
 import loginpic from "../img/log.svg";
 import registerpic from "../img/register.svg"
 import {Alert} from 'react-bootstrap'
-import { useGlobalContext } from '../context'
 
 const axios=require('axios')
 export default function Logreg() {
@@ -13,7 +12,6 @@ export default function Logreg() {
     const containerRef=useRef(null);
     const[registerInfo,setRegisterInfo]=useState({});
     const [loginInfo,setLoginInfo]=useState({});
-    const {server}=useGlobalContext();
 
     function handleLoginChange(e){
       const {name,value}=e.target;
@@ -33,7 +31,7 @@ export default function Logreg() {
     }
   const postRegisterOrLogin=async(obj,str)=>{
       try {
-          let res=await axios.post(`${server}/api/v1/auth/${str}`,obj);
+          let res=await axios.post(`/api/v1/auth/${str}`,obj);
           localStorage.setItem("token",res.data.token);
           localStorage.setItem("name",res.data.user.name);
           window.location.href="/";

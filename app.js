@@ -8,12 +8,7 @@ const authRouter = require('./routes/auth');
 const latlngRouter=require('./routes/latlng');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 const authenticateUser = require('./middleware/authentication');
-const cors=require('cors');
 const path=require('path');
-
-//enable cross-origin requests if not in production
-if(!(process.env.NODE_ENV === 'production'))
-    app.use(cors());
 
 app.use(express.json());
 app.use('/api/v1/auth', authRouter);

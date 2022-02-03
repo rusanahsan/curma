@@ -3,14 +3,12 @@ import Navbar from '../components/Navbar'
 import logout from '../components/logout'
 import {Container,Row,Col,Table,Alert} from 'react-bootstrap'
 import axios from 'axios'
-import { useGlobalContext } from '../context'
 
 export default function AllReviews(){
     if(!localStorage.getItem("name") || !localStorage.getItem("token"))
         logout();
     const[reviews,setReviews]=useState({"latlongarr":[]})
     const[showAlert,setShowAlert]=useState({show:false,msg:'custom message',variant:'danger'})
-    const {server}=useGlobalContext();
 
     function handleClick(e,num){
         let ind=e.target.parentNode.rowIndex;
@@ -29,7 +27,7 @@ export default function AllReviews(){
     useEffect(()=>{getReviews()},[])
     const getReviews=async()=>{
         try{
-            const review=await axios.get(`${server}/api/v1/reviews`,{
+            const review=await axios.get(`/api/v1/reviews`,{
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 }});

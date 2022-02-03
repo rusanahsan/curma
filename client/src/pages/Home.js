@@ -4,7 +4,6 @@ import logout from '../components/logout'
 import {Container,Row,Col,Button,ButtonGroup,Modal} from 'react-bootstrap'
 import rfNames from '../components/Review-factors'
 import axios from 'axios'
-import { useGlobalContext } from '../context'
 
 export default function Home() {
   if(!localStorage.getItem('token')||!localStorage.getItem('name'))
@@ -24,17 +23,15 @@ export default function Home() {
   const [checkbox,setCheckbox]=useState(new Array(rfNames.length).fill(false));
   //eslint-disable-next-line
   const [reviewOptimization,setReviewOptimization]=useState({routeReviews:[],optimizedRoute:0});
-  
-  const{key,server}=useGlobalContext();
 
   useEffect(()=>{
     placeSearch({
-      key: key,
+      key: process.env.REACT_APP_MAPQUEST_KEY,
       container: fromRef.current,
       useDeviceLocation:true
     });
     placeSearch({
-      key: key,
+      key: process.env.REACT_APP_MAPQUEST_KEY,
       container: toRef.current,
       useDeviceLocation:true
     });
@@ -97,7 +94,7 @@ export default function Home() {
         return {...item.startPoint}
       });
       let index=0;
-      let info=await axios.post(`${server}/api/v1/latlng`,{maneuvers},{
+      let info=await axios.post(`/api/v1/latlng`,{maneuvers},{
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         }});
@@ -109,7 +106,7 @@ export default function Home() {
         maneuvers=alternateroute[i].route.legs[0].maneuvers.map((item)=>{
           return {...item.startPoint}
         });
-        info=await axios.post(`${server}/api/v1/latlng`,{maneuvers},{
+        info=await axios.post(`/api/v1/latlng`,{maneuvers},{
           headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
           }});
@@ -185,7 +182,7 @@ export default function Home() {
     setCustomLayer(customLayer);
   }
   function getRoutes(){
-    L.mapquest.key = key
+    L.mapquest.key = process.env.REACT_APP_MAPQUEST_KEY
     let directions = L.mapquest.directions();
     asyncWrapper(L.mapquest.key,[fromRef.current.value,toRef.current.value],{
     timeOverage:100,

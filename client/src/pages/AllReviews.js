@@ -7,7 +7,6 @@ import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import { faStar } from '@fortawesome/free-solid-svg-icons'
-import { useGlobalContext } from '../context'
 
 export default function AllReviews(){
     if(!localStorage.getItem("name") || !localStorage.getItem("token") || !localStorage.getItem("from") || !localStorage.getItem("to") || !localStorage.getItem("maneuvers"))
@@ -15,7 +14,6 @@ export default function AllReviews(){
     const [review,setReview]=useState({});
     const [hover,setHover]=useState({});
     const [showAlert,setShowAlert]=useState({show:false,msg:"custom message",variant:'danger'});
-    const {server}=useGlobalContext();
 
     function submitReview(){
         console.log(review);
@@ -49,7 +47,7 @@ export default function AllReviews(){
     }
     const postReview=async(obj)=>{
         try {
-            await axios.post(`${server}/api/v1/reviews`,obj,{
+            await axios.post(`/api/v1/reviews`,obj,{
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 }});
