@@ -35,9 +35,8 @@ export default function AllReviews(){
         }
         catch(error){
             setShowAlert({...showAlert,show:true,msg:`Something went wrong!!!!
-            Redirecting to login/register page.......`})
+            Please logout and login again.`})
             setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
-            logout();
         }
     }
     return(
@@ -46,7 +45,7 @@ export default function AllReviews(){
             <section>
             <Container fluid className="my-5">
                 <Row className="justify-content-center">
-                    <Col xs="12">
+                    <Col>
                         {
                             showAlert.show?(
                             <Alert
@@ -55,7 +54,7 @@ export default function AllReviews(){
                                     {showAlert.msg}
                             </Alert>):
                             (reviews.data && reviews.data.count!==0)?(
-                                <Table striped bordered>
+                                <Table striped bordered responsive hover>
                                     <thead>
                                         <tr>
                                             <th>From</th>

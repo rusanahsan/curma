@@ -98,6 +98,8 @@ export default function AllReviews(){
                                                             color={ind+1<=(hover[item]||review[item])?"orange":"#ddd"}
                                                             onMouseEnter={()=>setHover({...hover,[item]:ind+1})} 
                                                             onMouseLeave={()=>setHover({...hover,[item]:null})} 
+                                                            onTouchStart={()=>setHover({...hover,[item]:ind+1})}
+                                                            onTouchEnd={()=>setHover({...hover,[item]:null})}
                                                         />
                                                     </label>
                                                 )
