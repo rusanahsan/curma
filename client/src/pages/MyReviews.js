@@ -34,9 +34,9 @@ export default function AllReviews(){
             setReviews({...review,latlongarr:[]})
         }
         catch(error){
-            setShowAlert({...showAlert,show:true,msg:`Something went wrong!!!!
-            Please logout and login again.`})
+            setShowAlert({...showAlert,show:true,msg:`Something went wrong!!!!`})
             setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
+            logout();
         }
     }
     return(

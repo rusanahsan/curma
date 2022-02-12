@@ -4,6 +4,8 @@ import logout from '../components/logout'
 import {Container,Row,Col,Button,ButtonGroup,Modal} from 'react-bootstrap'
 import rfNames from '../components/Review-factors'
 import axios from 'axios'
+import { services } from '@tomtom-international/web-sdk-services';
+import SearchBox from '@tomtom-international/web-sdk-plugin-searchbox';
 
 export default function Home() {
   if(!localStorage.getItem('token')||!localStorage.getItem('name'))
@@ -17,27 +19,51 @@ export default function Home() {
   const [showMap,setShowMap]=useState(true);
   const fromRef=useRef(null);
   const toRef=useRef(null);
-  const {placeSearch,L}=window;
+  const {L}=window;
 
   //eslint-disable-next-line
   const [checkbox,setCheckbox]=useState(new Array(rfNames.length).fill(false));
   //eslint-disable-next-line
   const [reviewOptimization,setReviewOptimization]=useState({routeReviews:[],optimizedRoute:0});
 
+  const searchOptions = {
+    key: process.env.REACT_APP_TOMTOM_KEY,
+    language: 'en-GB',
+    limit: 5,
+    countrySet:"IN"
+  };
+
+// Options for the autocomplete service
+  const autocompleteOptions = {
+    key: process.env.REACT_APP_TOMTOM_KEY,
+    language: 'en-GB'
+  };
+
+  const searchBoxOptionsFrom = {
+    minNumberOfCharacters: 0,
+    searchOptions: searchOptions,
+    autocompleteOptions: autocompleteOptions,
+    labels:{
+        placeholder:"FROM....."
+    }
+  };
+  const searchBoxOptionsTo = {
+    minNumberOfCharacters: 0,
+    searchOptions: searchOptions,
+    autocompleteOptions: autocompleteOptions,
+    labels:{
+        placeholder:"TO....."
+    }
+  };
+  const ttSearchBoxFrom = new SearchBox(services, searchBoxOptionsFrom);
+  const ttSearchBoxTo = new SearchBox(services, searchBoxOptionsTo);
+  
   useEffect(()=>{
-    placeSearch({
-      key: process.env.REACT_APP_MAPQUEST_KEY,
-      container: fromRef.current,
-      useDeviceLocation:true
-    });
-    placeSearch({
-      key: process.env.REACT_APP_MAPQUEST_KEY,
-      container: toRef.current,
-      useDeviceLocation:true
-    });
+    fromRef.current.appendChild(ttSearchBoxFrom.getSearchBoxHTML());
+    toRef.current.appendChild(ttSearchBoxTo.getSearchBoxHTML());
     if(localStorage.getItem("from")&&localStorage.getItem("to")){
-      fromRef.current.value=localStorage.getItem("from");
-      toRef.current.value=localStorage.getItem('to');
+      document.getElementsByClassName('tt-search-box-input')[0].value=localStorage.getItem("from");
+      document.getElementsByClassName('tt-search-box-input')[1].value=localStorage.getItem('to');
       getRoutes();
     }
     //eslint-disable-next-line
@@ -86,8 +112,8 @@ export default function Home() {
       if(!routeBtn.showRouteBtn){
         localStorage.setItem('route_index',0);
         localStorage.setItem('maneuvers',JSON.stringify(resp));
-        localStorage.setItem('from',toRef.current.value);
-        localStorage.setItem('to',fromRef.current.value);
+        localStorage.setItem('from',document.getElementsByClassName('tt-search-box-input')[0].value);
+        localStorage.setItem('to',document.getElementsByClassName('tt-search-box-input')[1].value);
         setRouteBtn({RI:0,showRouteBtn:true});
       }
       let maneuvers=res.data.route.legs[0].maneuvers.map((item)=>{
@@ -101,6 +127,10 @@ export default function Home() {
       reviewOptimization.routeReviews.push(info.data.totalReview);
       let str=[`Route index:${index} Reviews:${printArray(info.data.totalReview)} Total reviews:${info.data.segmentHit}/${info.data.totalSegment}`];
       const alternateroute=res.data.route.alternateRoutes;
+      if(!alternateroute){
+        setRouteInfo(str);
+        return;
+      }
       for(let i=0;i<alternateroute.length;i++){
         index++;
         maneuvers=alternateroute[i].route.legs[0].maneuvers.map((item)=>{
@@ -175,8 +205,8 @@ export default function Home() {
       let maneuvers=eventResponse.sourceTarget.routes[routeBtn.RI].legs[0].maneuvers;
       localStorage.setItem('route_index',routeBtn.RI);
       localStorage.setItem('maneuvers',JSON.stringify(maneuvers));
-      localStorage.setItem('from',fromRef.current.value);
-      localStorage.setItem('to',toRef.current.value);
+      localStorage.setItem('from',document.getElementsByClassName('tt-search-box-input')[0].value);
+      localStorage.setItem('to',document.getElementsByClassName('tt-search-box-input')[1].value);
     });
     customLayer1.addTo(map);
     setCustomLayer(customLayer);
@@ -184,13 +214,13 @@ export default function Home() {
   function getRoutes(){
     L.mapquest.key = process.env.REACT_APP_MAPQUEST_KEY
     let directions = L.mapquest.directions();
-    asyncWrapper(L.mapquest.key,[fromRef.current.value,toRef.current.value],{
+    asyncWrapper(L.mapquest.key,[document.getElementsByClassName('tt-search-box-input')[0].value,document.getElementsByClassName('tt-search-box-input')[1].value],{
     timeOverage:100,
     maxRoutes: 5,
   });
   directions.route({
-    start: fromRef.current.value,
-    end: toRef.current.value,
+    start: document.getElementsByClassName('tt-search-box-input')[0].value,
+    end: document.getElementsByClassName('tt-search-box-input')[1].value,
     options: {
       timeOverage:100,
       maxRoutes: 5,
@@ -203,11 +233,9 @@ export default function Home() {
       <section>
       <Container>
         <Row className="justify-content-center my-3">
-            <Col xs="6">
-                <input type="search" ref={fromRef} placeholder="From....."/>
+            <Col xs="6" ref={fromRef} style={{zIndex:'999999'}}>
             </Col>
-            <Col xs="6">
-                <input type="search" ref={toRef} placeholder="To....."/>
+            <Col xs="6" ref={toRef} style={{zIndex:'999999'}}>
             </Col>
             <Col>
                 <ButtonGroup aria-label='map buttons' className="my-2">
@@ -215,7 +243,7 @@ export default function Home() {
                     Get Routes
                 </Button>
                 {
-                  routeBtn.showRouteBtn && <Button variant='danger' onClick={()=>window.location.href="/allReviews"}>{`Route-${routeBtn.RI}`}</Button>
+                  routeBtn.showRouteBtn && <Button variant='danger' onClick={()=>window.location.href="/allReviews"}>{`Review route-${routeBtn.RI}`}</Button>
                 }
                 <Button variant="primary" onClick={()=>setShowInfo(true)}>
                     Info
