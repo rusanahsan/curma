@@ -9,7 +9,9 @@ const latlngRouter=require('./routes/latlng');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 const authenticateUser = require('./middleware/authentication');
 const path=require('path');
+const cors=require('cors');
 
+app.use(cors());
 app.use(express.json());
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/reviews', authenticateUser,reviewsRouter);
