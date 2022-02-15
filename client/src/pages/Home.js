@@ -19,6 +19,7 @@ export default function Home() {
   const [showMap,setShowMap]=useState(true);
   const fromRef=useRef(null);
   const toRef=useRef(null);
+  const checkboxRef=useRef(null);
   const {L}=window;
 
   //eslint-disable-next-line
@@ -32,20 +33,19 @@ export default function Home() {
     limit: 5,
     countrySet:"IN"
   };
-
 // Options for the autocomplete service
   const autocompleteOptions = {
     key: process.env.REACT_APP_TOMTOM_KEY,
     language: 'en-GB'
   };
-
   const searchBoxOptionsFrom = {
     minNumberOfCharacters: 0,
     searchOptions: searchOptions,
     autocompleteOptions: autocompleteOptions,
     labels:{
         placeholder:"FROM....."
-    }
+    },
+    idleTimePress:500
   };
   const searchBoxOptionsTo = {
     minNumberOfCharacters: 0,
@@ -53,19 +53,28 @@ export default function Home() {
     autocompleteOptions: autocompleteOptions,
     labels:{
         placeholder:"TO....."
-    }
+    },
+    idleTimePress:500
   };
   const ttSearchBoxFrom = new SearchBox(services, searchBoxOptionsFrom);
   const ttSearchBoxTo = new SearchBox(services, searchBoxOptionsTo);
-  
+
   useEffect(()=>{
     fromRef.current.appendChild(ttSearchBoxFrom.getSearchBoxHTML());
     toRef.current.appendChild(ttSearchBoxTo.getSearchBoxHTML());
     if(localStorage.getItem("from")&&localStorage.getItem("to")){
+      document.getElementsByClassName('tt-search-box-close-icon')[0].classList.remove('-hidden');
+      document.getElementsByClassName('tt-search-box-close-icon')[1].classList.remove('-hidden');
       document.getElementsByClassName('tt-search-box-input')[0].value=localStorage.getItem("from");
       document.getElementsByClassName('tt-search-box-input')[1].value=localStorage.getItem('to');
       getRoutes();
     }
+    document.getElementsByClassName('tt-search-box-close-icon')[0].addEventListener('click',(e)=>{
+      checkboxRef.current.checked=false;
+    });
+    document.getElementsByClassName('tt-search-box-input')[0].addEventListener('click',(e)=>{
+      checkboxRef.current.checked=false;
+    })
     //eslint-disable-next-line
   },[])
   function printArray(arr){
@@ -109,13 +118,11 @@ export default function Home() {
       const obj={locations,...options};
       const res=await axios.post(`https://www.mapquestapi.com/directions/v2/alternateroutes?key=${key}`,obj)
       const resp=res.data.route.legs[0].maneuvers;
-      if(!routeBtn.showRouteBtn){
-        localStorage.setItem('route_index',0);
-        localStorage.setItem('maneuvers',JSON.stringify(resp));
-        localStorage.setItem('from',document.getElementsByClassName('tt-search-box-input')[0].value);
-        localStorage.setItem('to',document.getElementsByClassName('tt-search-box-input')[1].value);
-        setRouteBtn({RI:0,showRouteBtn:true});
-      }
+      localStorage.setItem('route_index',0);
+      localStorage.setItem('maneuvers',JSON.stringify(resp));
+      localStorage.setItem('from',document.getElementsByClassName('tt-search-box-input')[0].value);
+      localStorage.setItem('to',document.getElementsByClassName('tt-search-box-input')[1].value);
+      setRouteBtn({RI:0,showRouteBtn:true});
       let maneuvers=res.data.route.legs[0].maneuvers.map((item)=>{
         return {...item.startPoint}
       });
@@ -227,15 +234,65 @@ export default function Home() {
     }
     },createMap);
   }
+function showPosition(position) {
+    reverseGeolocation(position.coords.latitude,position.coords.longitude);
+}
+async function reverseGeolocation(latitude,longitude){
+    try{
+        const res=await axios.get(`https://api.tomtom.com/search/2/reverseGeocode/${latitude},${longitude}.json?key=${process.env.REACT_APP_TOMTOM_KEY}&language=en-GB`)
+        document.getElementsByClassName('tt-search-box-close-icon')[0].classList.remove('-hidden');
+        document.getElementsByClassName('tt-search-box-input')[0].value=res.data.addresses[0].address.freeformAddress;
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+function showError(error) {
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            alert("You denied the request for Geolocation. Please give permission of geolocation and try again!!");
+            break;
+        case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable. My current location checkbox won't work.")
+            break;
+        case error.TIMEOUT:
+            alert("The request to get your location timed out. Please try again.")
+            break;
+        case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred fetching your location. Please try again.")
+            break;
+        default:
+    }
+}
+  function handleChange(e){
+    if(!e.target.checked){
+      /*if(localStorage.getItem('from'))
+        document.getElementsByClassName('tt-search-box-input')[0].value=localStorage.getItem('from');
+      else
+        document.getElementsByClassName('tt-search-box-input')[0].value='';*/
+      return;
+    }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition,showError);
+    }
+    else {
+      alert("Geolocation is not supported by this browser. My current location checkbox won't work");
+    }
+  }
   return (
     <main>
       <Navbar/>
       <section>
       <Container>
         <Row className="justify-content-center my-3">
-            <Col xs="6" ref={fromRef} style={{zIndex:'999999'}}>
+            <Col sm="6" ref={fromRef} style={{zIndex:'999999'}}>
             </Col>
-            <Col xs="6" ref={toRef} style={{zIndex:'999999'}}>
+            <Col sm="6" ref={toRef} style={{zIndex:'999999'}}>
+            </Col>
+            <Col xs="12" className='d-flex align-items-center my-1'>
+              <input type="checkbox" id="location" className="locationinput" ref={checkboxRef} onChange={handleChange}/>
+              <label htmlFor="location" className="locationlabel"></label>
+              <label htmlFor="location" className="locationtext mx-1 fw-bold">My current location</label>
             </Col>
             <Col>
                 <ButtonGroup aria-label='map buttons' className="my-2">
@@ -252,7 +309,7 @@ export default function Home() {
                     Settings
                 </Button>
                 </ButtonGroup>
-                <Modal show={showSettings} onHide={()=>setShowSettings(false)}>
+                <Modal show={showSettings} onHide={()=>setShowSettings(false)} style={{zIndex:'9999999'}}>
                   <Modal.Header closeButton>
                     <Modal.Title className='fs-5'>Settings</Modal.Title>
                   </Modal.Header>
@@ -272,7 +329,7 @@ export default function Home() {
                     <Button variant="dark" onClick={()=>setShowSettings(false)}>Close</Button>
                   </Modal.Footer>
                 </Modal>
-                <Modal show={showInfo} onHide={()=>setShowInfo(false)}>
+                <Modal show={showInfo} onHide={()=>setShowInfo(false)} style={{zIndex:'9999999'}}>
                   <Modal.Header closeButton>
                     <Modal.Title className='fs-5'>Route Info</Modal.Title>
                   </Modal.Header>

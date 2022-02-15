@@ -423,3 +423,40 @@ td{
   max-width: 15vw!important;
   word-wrap: break-word;
 }
+.locationinput{
+	height: 0;
+	width: 0;
+	visibility: hidden;
+}
+
+.locationlabel {
+	cursor: pointer;
+	text-indent: -9999px;
+	width: 40px;
+	height: 20px;
+	background: grey;
+	display: inline-block;
+	border-radius: 100px;
+	position: relative;
+}
+
+.locationlabel:after {
+	content: '';
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 15px;
+	height: 15px;
+	background: #fff;
+	border-radius: 100px;
+	transition: 0.3s;
+}
+
+.locationinput:checked + .locationlabel {
+	background: #bada55;
+}
+
+.locationinput:checked + .locationlabel:after {
+	left: calc(100% - 3px);
+	transform: translateX(-100%);
+}

@@ -59,7 +59,15 @@ export default function AllReviews(){
             setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
             logout();
         }
-    } 
+    }
+    function addressToWord(str){
+        const words=str.split(',');
+        const regExp=/[a-zA-Z]/g;
+        for(let i=0;i<words.length;i++){
+            if(regExp.test(words[i]))
+                return words[i].trim();
+        }
+    }
     return(
         <main>
             <Navbar/>
@@ -67,10 +75,10 @@ export default function AllReviews(){
             <Container className="my-3">
             <Row className="justify-content-center">
                 <Col className="display-5 text-center">
-                    Route Reviews For <span className='text-capitalize'>
-                        {localStorage.getItem('from')}
-                    </span>-<span className='text-capitalize'>
-                        {localStorage.getItem('to')}
+                    Route Reviews For <span className='text-capitalize text-danger'>
+                        {addressToWord(localStorage.getItem('from'))}
+                    </span>-<span className='text-capitalize text-success'>
+                        {addressToWord(localStorage.getItem('to'))}
                     </span>
                 </Col>
             </Row>
