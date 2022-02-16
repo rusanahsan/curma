@@ -239,7 +239,7 @@ function showPosition(position) {
 }
 async function reverseGeolocation(latitude,longitude){
     try{
-        const res=await axios.get(`https://api.tomtom.com/search/2/reverseGeocode/${latitude},${longitude}.json?key=${process.env.REACT_APP_TOMTOM_KEY}&language=en-GB`)//&entityType=MunicipalitySubdivision`)
+        const res=await axios.get(`https://api.tomtom.com/search/2/reverseGeocode/${latitude},${longitude}.json?key=${process.env.REACT_APP_TOMTOM_KEY}&language=en-GB&entityType=MunicipalitySubdivision`)
         document.getElementsByClassName('tt-search-box-close-icon')[0].classList.remove('-hidden');
         document.getElementsByClassName('tt-search-box-input')[0].value=res.data.addresses[0].address.freeformAddress;
     }
