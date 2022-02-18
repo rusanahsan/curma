@@ -5,6 +5,10 @@ const reviewSchema=new mongoose.Schema({
         ref: 'User',
         required: [true, 'Please provide user'],
     },
+    name:{
+        type:String,
+        required:[true,'Name of the user must be provided']
+    },
     from:{
         type:String,
         required:[true,'from must be provided']

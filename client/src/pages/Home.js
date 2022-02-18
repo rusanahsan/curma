@@ -297,11 +297,8 @@ function showError(error) {
             <Col>
                 <ButtonGroup aria-label='map buttons' className="my-2">
                 <Button variant="dark" onClick={getRoutes}>
-                    Get Routes
+                  Get Routes
                 </Button>
-                {
-                  routeBtn.showRouteBtn && <Button variant='danger' onClick={()=>window.location.href="/allReviews"}>{`Review route-${routeBtn.RI}`}</Button>
-                }
                 <Button variant="primary" onClick={()=>setShowInfo(true)}>
                     Info
                 </Button>
@@ -346,11 +343,19 @@ function showError(error) {
                   </Modal.Footer>
                 </Modal>
             </Col>
+            <Col sm="6" className='my-2'>
+            {
+              routeBtn.showRouteBtn && <Button variant='danger' onClick={()=>window.location.href="/allReviews"}>
+              {`Click here to review route-${routeBtn.RI}`}
+              </Button>
+            }
+            </Col>
         </Row>
     </Container>
       <Container>
         {
-        showMap && <div id="map"></div>
+        showMap && <div id="map">
+        </div>
         }
       </Container>
       </section>

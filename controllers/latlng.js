@@ -1,4 +1,6 @@
 const LatLng=require("../models/LatLng")
+const Review=require('../models/Review')
+const {entryLatLng}=require('../helper')
 const { BadRequestError, NotFoundError } = require('../errors')
 const { StatusCodes } = require('http-status-codes')
 const {latlngToString}=require('../helper')
@@ -27,6 +29,14 @@ const postlatlngReviews=async(req,res)=>{
         totalReview=Array(5).fill(0);
     res.status(StatusCodes.OK).json({totalReview,segmentHit,totalSegment});
 }
+const reEvaluateReviews=async(req,res)=>{
+    await LatLng.deleteMany({});
+    for await (const doc of Review.find()) {
+        entryLatLng(doc.pathLat,doc.pathLong,doc.RF);
+    }
+    res.status(StatusCodes.OK).json({status:'OK'})
+}
 module.exports={
-    postlatlngReviews
+    postlatlngReviews,
+    reEvaluateReviews
 }
