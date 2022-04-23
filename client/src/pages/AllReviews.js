@@ -13,7 +13,7 @@ export default function AllReviews(){
         logout();
     const [review,setReview]=useState({});
     const [hover,setHover]=useState({});
-    const [showAlert,setShowAlert]=useState({show:false,msg:"custom message",variant:'danger'});
+    const [showAlert,setShowAlert]=useState({show:false,msg:["custom message"],variant:'danger'});
 
     function submitReview(){
         console.log(review);
@@ -21,7 +21,7 @@ export default function AllReviews(){
             return review[item]==null;
         })
         if(notReviewed){
-            setShowAlert({show:true,msg:`Please Enter Review For ${notReviewed}`,variant:'danger'});
+            setShowAlert({show:true,msg:[`Please Enter Review For ${notReviewed}`],variant:'danger'});
             setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
             return;
         }
@@ -46,18 +46,37 @@ export default function AllReviews(){
         postReview(obj);
     }
     const postReview=async(obj)=>{
+        obj.UIPS=JSON.stringify(obj.pathLat)+JSON.stringify(obj.pathLong);
         try {
-            await axios.post(`/api/v1/reviews`,obj,{
+            setShowAlert({show:true,msg:['Waiting for server response....'],variant:`warning`})
+            const response=await axios.post(`/api/v1/train`,obj,{
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 }});
-            setShowAlert({show:true,msg:`Your reviews was successfully submitted`,variant:'success'});
-            setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
+            setShowAlert({...showAlert,show:false})
+            const result=response.data.result;
+            if(result.ml_success){
+                setShowAlert({show:true,
+                msg:[`${result.msg}`,`Expected RF: ${JSON.stringify(result.random_forest.map((item=>item.toFixed(2))))}`,
+                `Error %: ${result.error_percentage.toFixed(2)}`,
+                `Error% tolerance:30`,
+                `Review Type: ${result.good_review?"GENUINE":"FAKE"}`],
+                variant:'success'})
+            }
+            else
+                setShowAlert({show:true,msg:[`${result.msg}`],variant:'danger'})
+            /*await axios.post(`/api/v1/reviews`,obj,{
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                }});
+            setShowAlert({show:true,msg:[`Your reviews was successfully submitted`],variant:'success'});
+            setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);*/
         } catch (error) {
-            setShowAlert({show:true,msg:`Something went wrong!!!
-            Redirecting you to the login/register page.....`,variant:'danger'});
+            setShowAlert({show:true,msg:[`Something went wrong!!!
+            Redirecting you to the login/register page.....`],variant:'danger'});
             setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
-            logout();
+            console.log(error);
+            //logout();
         }
     }
     function addressToWord(str){
@@ -122,7 +141,12 @@ export default function AllReviews(){
             </Container>
             <Container>
             {
-                showAlert.show&&<Alert style={{maxWidth:'70%'}} className="fs-5" variant={showAlert.variant}>{showAlert.msg}</Alert>
+                showAlert.show&&<Alert style={{maxWidth:'70%'}} className="fs-5" variant={showAlert.variant}>{showAlert.msg.map((item,index)=>{
+                    return <div key={index}>
+                        <>{item}</>
+                        <br/>
+                    </div>
+                })}</Alert>
             }
             <Row className="justify-content-start my-5">
                 <Col>

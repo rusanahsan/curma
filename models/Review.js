@@ -17,6 +17,10 @@ const reviewSchema=new mongoose.Schema({
         type:String,
         required:[true,'to must be provided']
     },
+    UNID:{
+        type:Number,
+        required:[true,'Unique Natural Id must be provided']
+    },
     pathLat:{
         type:[Number],
         default:undefined,

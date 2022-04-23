@@ -87,6 +87,15 @@ export default function Home() {
     str+="]";
     return str;
   }
+  function printManeuvers(maneuvers){
+    let pathLat=maneuvers.map((item)=>{
+      return item.startPoint.lat;
+    })
+    let pathLong=maneuvers.map((item)=>{
+      return item.startPoint.lng;
+    })
+    console.log(pathLat,pathLong);
+  }
   function selectRoute(){
     const len=rfNames.length;
     let arr=Array(reviewOptimization.routeReviews.length).fill(0);
@@ -120,6 +129,7 @@ export default function Home() {
       const resp=res.data.route.legs[0].maneuvers;
       localStorage.setItem('route_index',0);
       localStorage.setItem('maneuvers',JSON.stringify(resp));
+      //printManeuvers(resp);
       localStorage.setItem('from',document.getElementsByClassName('tt-search-box-input')[0].value);
       localStorage.setItem('to',document.getElementsByClassName('tt-search-box-input')[1].value);
       setRouteBtn({RI:0,showRouteBtn:true});
@@ -209,14 +219,15 @@ export default function Home() {
     });
     customLayer1.on('route_selected', function(eventResponse) {
       setRouteBtn({RI:eventResponse.route_index,showRouteBtn:true});
-      let maneuvers=eventResponse.sourceTarget.routes[routeBtn.RI].legs[0].maneuvers;
-      localStorage.setItem('route_index',routeBtn.RI);
+      let maneuvers=eventResponse.sourceTarget.routes[eventResponse.route_index].legs[0].maneuvers;
+      localStorage.setItem('route_index',eventResponse.route_index);
       localStorage.setItem('maneuvers',JSON.stringify(maneuvers));
+      printManeuvers(maneuvers);
       localStorage.setItem('from',document.getElementsByClassName('tt-search-box-input')[0].value);
       localStorage.setItem('to',document.getElementsByClassName('tt-search-box-input')[1].value);
     });
     customLayer1.addTo(map);
-    setCustomLayer(customLayer);
+    setCustomLayer(customLayer1);
   }
   function getRoutes(){
     L.mapquest.key = process.env.REACT_APP_MAPQUEST_KEY
@@ -315,7 +326,7 @@ function showError(error) {
                       rfNames.map((item,index)=>{
                         return(
                           <article key={index}>
-                          <input onChange={changeRoute} type="checkbox" name={`checkbox${index}`} value={index}/>
+                          <input onChange={changeRoute} checked={checkbox[index]} type="checkbox" name={`checkbox${index}`} value={index}/>
                           <label htmlFor={`checkbox${index}`}>{item}</label>
                           </article>
                         )
