@@ -8,6 +8,10 @@ const getAllReviews=async(req,res)=>{
     const reviews = await Review.find({ userId: req.user.userId }).sort('createdAt');
     res.status(StatusCodes.OK).json({ reviews, count: reviews.length });
 }
+const getAllUsersReviews=async(req,res)=>{
+    const reviews = await Review.find({}).sort('createdAt')
+    res.status(StatusCodes.OK).json({ reviews, count: reviews.length });
+}
 const createReview=async(req,res)=>{
     req.body.userId = req.user.userId;
     req.body.name=req.user.name;
@@ -31,4 +35,5 @@ const createReview=async(req,res)=>{
 module.exports={
     getAllReviews,
     createReview,
+    getAllUsersReviews
 }

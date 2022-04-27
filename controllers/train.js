@@ -4,6 +4,7 @@ const Path=require('../models/Path')
 const Train=require('../models/train')
 const {RandomForestRegression}= require('ml-random-forest');
 const trainOffline=async(req,res)=>{
+    await Path.deleteMany({});
     const record=await Review.find({});
     const options = {
         seed: 3,

@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
 const Review=require('../models/Review')
 const Path=require('../models/Path');
+const {entryLatLng}=require('../helper')
 const calculateCorrelation=require('calculate-correlation');
 function findCorrelation(response,ind1,ind2){
     let X=[],Y=[];
@@ -45,12 +46,15 @@ function removeReviews(resp,ind1,ind2,flag){
     const errorPos=2,errorNeg=1.5;
     const response=[...resp];
     const condition=()=>{
-        console.log(findMeanDeviation(response,ind1,ind2))
+        const FMD=findMeanDeviation(response,ind1,ind2)
         if(flag==1){
-            return response.length>1 && findMeanDeviation(response,ind1,ind2)>=errorPos;
+            console.log("RC<-->WC===> "+FMD);
+            return response.length>1 && FMD>=errorPos;
         }
-        else
-            return response.length>1 && findMeanDeviation(response,ind1,ind2)<=errorNeg;
+        else{
+            console.log("WS<-->TC===> "+FMD);
+            return response.length>1 && FMD<=errorNeg;
+        }
     }
     response.sort((a,b)=>{
         const RF1=a.RF;
@@ -76,23 +80,51 @@ const validateCorrelation=async(req,res)=>{
         resp=removeReviews(response,1,3,-1);
         //await Review.deleteMany({UNID:i});
         //await Review.create(resp);
+        //await LatLng.deleteMany({});
+        //for await (const doc of Review.find()) {
+          //  entryLatLng(doc.pathLat,doc.pathLong,doc.RF);
+        //}
     }
     res.status(StatusCodes.OK).json({success:true});
 }
+function haversine(lat1,lon1,lat2,lon2){
+    Number.prototype.toRad = function() {
+        return this * Math.PI / 180;
+    }
+    let R = 6371; // km 
+     //has a problem with the .toRad() method below.
+    let x1 = lat2-lat1;
+    let dLat = x1.toRad();  
+    let x2 = lon2-lon1;
+    let dLon = x2.toRad();  
+    let a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+            Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+            Math.sin(dLon/2) * Math.sin(dLon/2);  
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    let d = R * c; 
+    return d;
+}
 const instantValidate=async(req,res)=>{
-    const {UIPS,location}=req.body;
+    const disConstraint=2,timeConstraint=15;
+    const {UIPS,location,pathLat,pathLong}=req.body;
     const rec=await Path.find({UIPS});
-    isSpam=false;
+    let isSpam=false,locationBased=false;
     if(rec.length!=0){
         const resp=await Review.find({UNID:rec[0].UNID}).sort({createdAt:-1});
         if(resp.length!=0){
             const temp=resp[0].createdAt;
             const days=(Date.now()-Date.parse(temp))/(1000*60*60*24);
-            if(days<15)
+            if(days<timeConstraint)
                 isSpam=true;
         }
     }
-    res.status(StatusCodes.OK).json({success:true,spam:isSpam});
+    const disSource=haversine(location.lat,location.long,pathLat[0],pathLong[0]);
+    const disDest=haversine(location.lat,location.long,
+        pathLat[pathLat.length-1],pathLong[pathLong.length-1]);
+    if(disSource<=disConstraint || disDest<=disConstraint)
+        locationBased=true;
+    res.status(StatusCodes.OK).json({success:true,spam:isSpam,
+        locationValidity:locationBased,disSource,disDest});
 }
 module.exports={
     validateCorrelation,

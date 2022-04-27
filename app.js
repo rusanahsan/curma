@@ -8,6 +8,7 @@ const authRouter = require('./routes/auth');
 const latlngRouter=require('./routes/latlng');
 const trainRouter=require('./routes/train');
 const validateRouter=require('./routes/validators')
+const getAllRouter=require('./routes/getAll')
 const errorHandlerMiddleware = require('./middleware/error-handler');
 const authenticateUser = require('./middleware/authentication');
 const path=require('path');
@@ -17,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/reviews', authenticateUser,reviewsRouter);
+app.use('/api/v1/getAllRouter',getAllRouter);
 app.use('/api/v1/latlng',authenticateUser,latlngRouter);
 app.use('/api/v1/train',trainRouter);
 app.use('/api/v1/validate',validateRouter);
