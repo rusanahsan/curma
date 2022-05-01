@@ -21,7 +21,7 @@ async function getAllReviews(){
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             }});
         review.data.reviews.map((item)=>{
-            area.add(addressToWord(item.from)+"<->"+addressToWord(item.to));
+            area.add(addressToWord(item.from).toUpperCase()+"<->"+addressToWord(item.to).toUpperCase());
         })
     }
     catch(error){
@@ -51,7 +51,7 @@ export default function Graph1() {
         review.data.reviews.map((item)=>{
             //console.log(addressToWord(item.to)+"<->"+addressToWord(item.from))
             //console.log(areaRef.current.value)
-            if(areaRef.current.value==addressToWord(item.from)+"<->"+addressToWord(item.to)){
+            if(areaRef.current.value==addressToWord(item.from).toUpperCase()+"<->"+addressToWord(item.to).toUpperCase()){
                 const temp=item.RF[rfNames.indexOf(reviewRef.current.value)]
                 count[temp-1]++;
             }

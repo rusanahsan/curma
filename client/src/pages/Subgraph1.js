@@ -111,7 +111,7 @@ export default function Subgraph1(props){
             <div className="chart-container" style={{
               position: "relative", 
               height:"670px", 
-              width:"1000px",
+              width:"1300px",
             }}>
               <canvas id="myChart"></canvas>
             </div>
