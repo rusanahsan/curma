@@ -16,6 +16,7 @@ export default function Post({ post }) {
   const [showMap,setShowMap]=useState(false);
   const [customLayer,setCustomLayer]=useState(null);
   const {L}=window;
+  useEffect(()=>{selectRoutes()},[customLayer])
   function createMap(err,response){
     setShowMap(false);
     setShowMap(true);
@@ -138,7 +139,6 @@ export default function Post({ post }) {
   const modelClickHandler=()=>{
     setShowModal(true);
     getRoutes()
-    selectRoutes()
   }
   function matchMan(maneuvers,pathLat,pathLong){
     if(!pathLat || !pathLong|| !maneuvers || pathLat.length!=maneuvers.length)
@@ -156,14 +156,15 @@ export default function Post({ post }) {
       locations:[post.from,post.to]
     })
     res=res.data;
-    console.log(res.route.legs[0].maneuvers)
-    if(matchMan(res.route.legs[0].maneuvers,post.pathLat,post.pathLong)&&customLayer)
+    if(matchMan(res.route.legs[0].maneuvers,post.pathLat,post.pathLong)&&customLayer){
       customLayer.selectRoute(0);
+      console.log(0);
+    }
     res=res.route.alternateRoutes;
-    console.log(res)
     for(let i=0;i<res.length;i++){
       if(matchMan(res[i].route.legs[0].maneuvers,post.pathLat,post.pathLong)&&customLayer){
         customLayer.selectRoute(i+1);
+        console.log(i+1);
         break;
       }
     }
@@ -192,9 +193,13 @@ export default function Post({ post }) {
         <div className="postCenter">
           <span className="postText">
             <div className="postwidth">
-              {`I have reviewed a route from ${post.from} to ${post.to} with 
-              Latitudes: ${JSON.stringify(post.pathLat)} and Longitudes
-              : ${JSON.stringify(post.pathLong)}`}
+              <span>I have reviewed a route from </span>
+              <span className="places">{post.from}</span><span> to </span>
+              <span className="places">{post.to}</span>
+              <div className="textBold">Latitudes:</div>
+              <div className="latlng">{JSON.stringify(post.pathLat)}</div>
+              <div className="textBold">Longitudes:</div>
+              <div className="latlng">{JSON.stringify(post.pathLong)}</div>
                 <div style={{
                   textDecoration:"underline",
                   cursor:"pointer",

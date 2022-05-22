@@ -80,3 +80,13 @@
   max-width: 600px;
   word-wrap: break-word;
 }
+.places{
+  color:red;
+  text-transform: capitalize;
+}
+.latlng{
+  color:green;
+}
+.textBold{
+  font-weight:bolder;
+}

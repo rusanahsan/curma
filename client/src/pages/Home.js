@@ -128,8 +128,9 @@ export default function Home() {
       const res=await axios.post(`https://www.mapquestapi.com/directions/v2/alternateroutes?key=${key}`,obj)
       const resp=res.data.route.legs[0].maneuvers;
       localStorage.setItem('route_index',0);
-      localStorage.setItem('maneuvers',JSON.stringify(resp));
-      //printManeuvers(resp);
+      if(!localStorage.getItem('maneuvers'))
+        localStorage.setItem('maneuvers',JSON.stringify(resp));
+      printManeuvers(resp);
       localStorage.setItem('from',document.getElementsByClassName('tt-search-box-input')[0].value);
       localStorage.setItem('to',document.getElementsByClassName('tt-search-box-input')[1].value);
       setRouteBtn({RI:0,showRouteBtn:true});
@@ -230,6 +231,7 @@ export default function Home() {
     setCustomLayer(customLayer1);
   }
   function getRoutes(){
+    localStorage.removeItem('maneuvers');
     L.mapquest.key = process.env.REACT_APP_MAPQUEST_KEY
     let directions = L.mapquest.directions();
     asyncWrapper(L.mapquest.key,[document.getElementsByClassName('tt-search-box-input')[0].value,document.getElementsByClassName('tt-search-box-input')[1].value],{
