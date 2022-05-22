@@ -6,36 +6,78 @@ import { FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import { faThumbsDown, faThumbsUp,faStar } from '@fortawesome/free-solid-svg-icons'
 import rfNames from "../Review-factors";
 import axios from "axios";
+import {Modal,Button} from 'react-bootstrap'
 export default function Post({ post }) {
   const [like,setLike] = useState(post.likeColor)
   const [dislike,setDislike] = useState(post.dislikeColor)
   const [numLikes,setNumLikes]=useState(post.numLikes)
   const [numDislikes,setNumDislikes]=useState(post.numDislikes)
-
-  async function getColorLikes(){
-    try{
-      const posts=await axios.get('/api/v1/posts/'+post["_id"],{
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+  const [showModal,setShowModal]=useState(false);
+  const [showMap,setShowMap]=useState(false);
+  const [customLayer,setCustomLayer]=useState(null);
+  const {L}=window;
+  function createMap(err,response){
+    setShowMap(false);
+    setShowMap(true);
+    let map = L.mapquest.map('map', {
+      center: [26.343821, 80.230347],
+      layers: L.mapquest.tileLayer('map'),
+      zoom: 12,
+      attributionControl: true,
+    });
+    const customLayer1 = L.mapquest.directionsLayer({
+      startMarker: {
+        icon: 'marker-start',
+        draggable:false,
+        iconOptions: {
+          size: 'sm',
+          primaryColor: '#000000',
+          secondaryColor: '#1fc715',
+          symbol: 'A'
         }
-      })
-      const likedislike=posts.data.posts.likedislike;
-          if(likedislike[post.userId]!=1 && likedislike[post.userId]!=-1){
-            setLike("black");
-            setDislike("black");
-          }
-          else if(likedislike[post.userId]==1){
-            setLike("blue");
-            setDislike("black");
-          }
-          else{
-            setLike("black");
-            setDislike("red");
-          }
+      },
+      endMarker: {
+        icon: 'marker-end',
+        draggable:false,
+        iconOptions: {
+          size: 'sm',
+          primaryColor: '#000000',
+          secondaryColor: '#e9304f',
+          symbol: 'B'
+        }
+      },
+      routeRibbon: {
+        color: "#5882FA",
+        opacity: 0.7,
+        widths: [
+          10, 15, 10, 15, 10, 13, 10, 12, 10, 11, 10, 11, 10, 12, 10, 14, 10,
+        ],
+        showTraffic: false
+      },
+      alternateRouteRibbon: {
+        color: "#F78181",
+        opacity: 0.7,
+        widths: [
+          10, 15, 10, 15, 10, 13, 10, 12, 10, 11, 10, 11, 10, 12, 10, 14, 10,
+        ],
+        showTraffic: false,
+      },
+      directionsResponse: response
+    });
+    customLayer1.addTo(map);
+    setCustomLayer(customLayer1)
+  }
+  function getRoutes(){
+    L.mapquest.key = process.env.REACT_APP_MAPQUEST_KEY
+    let directions = L.mapquest.directions();
+  directions.route({
+    start: post.from,
+    end: post.to,
+    options: {
+      timeOverage:100,
+      maxRoutes: 5,
     }
-    catch(err){
-      console.log(err)
-    }
+    },createMap);
   }
   async function getLikesDislike(obj){
     try{
@@ -93,6 +135,39 @@ export default function Post({ post }) {
     else
       return `${Math.round(d/(60*24*365))} years ago`
   }
+  const modelClickHandler=()=>{
+    setShowModal(true);
+    getRoutes()
+    selectRoutes()
+  }
+  function matchMan(maneuvers,pathLat,pathLong){
+    if(!pathLat || !pathLong|| !maneuvers || pathLat.length!=maneuvers.length)
+      return false;
+    for(let index=0;index<maneuvers.length;index++){
+      if(maneuvers[index].startPoint.lat!=pathLat[index]||maneuvers[index].startPoint.lng!=pathLong[index])
+        return false;
+    }
+    return true;
+  }
+  const selectRoutes=async()=>{
+    let res=await axios.post(`https://www.mapquestapi.com/directions/v2/alternateroutes?key=${process.env.REACT_APP_MAPQUEST_KEY}`,{
+      timeOverage:100,
+      maxRoutes: 5,
+      locations:[post.from,post.to]
+    })
+    res=res.data;
+    console.log(res.route.legs[0].maneuvers)
+    if(matchMan(res.route.legs[0].maneuvers,post.pathLat,post.pathLong)&&customLayer)
+      customLayer.selectRoute(0);
+    res=res.route.alternateRoutes;
+    console.log(res)
+    for(let i=0;i<res.length;i++){
+      if(matchMan(res[i].route.legs[0].maneuvers,post.pathLat,post.pathLong)&&customLayer){
+        customLayer.selectRoute(i+1);
+        break;
+      }
+    }
+  }
   return (
     <div className="post">
       <div className="postWrapper">
@@ -120,13 +195,41 @@ export default function Post({ post }) {
               {`I have reviewed a route from ${post.from} to ${post.to} with 
               Latitudes: ${JSON.stringify(post.pathLat)} and Longitudes
               : ${JSON.stringify(post.pathLong)}`}
+                <div style={{
+                  textDecoration:"underline",
+                  cursor:"pointer",
+                  color:"blue"
+                }} onClick={modelClickHandler}>
+                  Click here to view the route in the map
+                </div>
+                <Modal show={showModal} size="lg" onHide={()=>setShowModal(false)}>
+                  <Modal.Header closeButton>
+                    <Modal.Title className='fs-5'>Routes</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                  <div style={{
+                    display:"grid",
+                    justifyItems:"center"
+                  }}>
+                  {
+                    showMap && <div id="map" style={{
+                      width:"600px",
+                      height:"400px"
+                    }} >
+                    </div>
+                  }
+                  </div>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="dark" onClick={()=>setShowModal(false)}>Close</Button>
+                  </Modal.Footer>
+                </Modal>
               <div className="mt-3">
               {rfNames.map((item,index)=>{
                 return(<div key={index}>
                   {item+": "}
                   {
                     [...Array(parseInt(post.RF[index]))].map((itm,ind)=>{
-                      console.log(ind);
                       return(
                         <FontAwesomeIcon key={ind} icon={faStar} color="orange"/>
                       )
