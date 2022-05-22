@@ -6,7 +6,7 @@ import { FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import { faThumbsDown, faThumbsUp,faStar } from '@fortawesome/free-solid-svg-icons'
 import rfNames from "../Review-factors";
 import axios from "axios";
-import {Modal,Button} from 'react-bootstrap'
+import {Modal,Button,Container,Row,Col} from 'react-bootstrap'
 export default function Post({ post }) {
   const [like,setLike] = useState(post.likeColor)
   const [dislike,setDislike] = useState(post.dislikeColor)
@@ -181,6 +181,9 @@ export default function Post({ post }) {
     }
   }
   return (
+    <Container>
+    <Row className="justify-content-center">
+    <Col lg="7" md="9" sm="10" xs="12">
     <div className="post">
       <div className="postWrapper">
         <div className="postTop">
@@ -230,11 +233,17 @@ export default function Post({ post }) {
                     justifyItems:"center"
                   }}>
                   {
-                    showMap && <div id="map" style={{
-                      width:"600px",
+                    showMap && <Container fluid>
+                      <Row className="justify-content-center">
+                      <Col xs="12">
+                      <div id="map" style={{
+                      width:"100%",
                       height:"400px"
                     }} >
                     </div>
+                    </Col>
+                    </Row>
+                    </Container>
                   }
                   </div>
                   </Modal.Body>
@@ -270,5 +279,8 @@ export default function Post({ post }) {
       </div>
     </div>
     </div>
+    </Col>
+    </Row>
+    </Container>
   );
 }

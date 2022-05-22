@@ -46,13 +46,11 @@ export default function Feed() {
     }
   }
   return (
-    <div className="feed">
-      <div className="feedWrapper">
+    <>
         {postarray.length>0 && postarray.map((p) =>{
           return (
           <Post key={p["_id"]} post={p} />
         )})}
-      </div>
-    </div>
+      </>
   );
 }
