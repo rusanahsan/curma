@@ -65,6 +65,11 @@ export default function Post({ post }) {
       },
       directionsResponse: response
     });
+    customLayer1.on('route_selected', function(eventResponse) {
+      const loading=document.getElementById("loading");
+      if(loading)
+        loading.innerHTML="";
+    });
     customLayer1.addTo(map);
     setCustomLayer(customLayer1)
   }
@@ -136,6 +141,12 @@ export default function Post({ post }) {
     else
       return `${Math.round(d/(60*24*365))} years ago`
   }
+  useEffect(()=>{
+    if(showModal){
+      const loading=document.getElementById("loading");
+      loading.innerHTML="(LOADING........)";
+    }
+  },[showModal])
   const modelClickHandler=()=>{
     setShowModal(true);
     getRoutes()
@@ -209,7 +220,9 @@ export default function Post({ post }) {
                 </div>
                 <Modal show={showModal} size="lg" onHide={()=>setShowModal(false)}>
                   <Modal.Header closeButton>
-                    <Modal.Title className='fs-5'>Routes</Modal.Title>
+                    <Modal.Title className='fs-5'>Routes
+                    <span className="places" id="loading">(LOADING........)</span>
+                    </Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
                   <div style={{
