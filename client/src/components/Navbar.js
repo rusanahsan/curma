@@ -26,6 +26,7 @@ export default function NavbarMain() {
               <Nav.Link href="/myReviews">My Reviews</Nav.Link>
               <Nav.Link href="/about">About</Nav.Link>
               <Nav.Link href="/statistics">Statistics</Nav.Link>
+              <Nav.Link href="/social">Social</Nav.Link>
             </Nav>
             <Button 
             className="text-capitalize" 

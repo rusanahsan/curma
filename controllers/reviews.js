@@ -1,5 +1,6 @@
 const Review=require('../models/Review')
 const Path=require('../models/Path')
+const Post=require('../models/Post')
 const { StatusCodes } = require('http-status-codes')
 const {entryLatLng}=require('../helper')
 const { BadRequestError, NotFoundError } = require('../errors')
@@ -30,6 +31,19 @@ const createReview=async(req,res)=>{
     }
     const review = await Review.create(req.body);
     entryLatLng(req.body.pathLat,req.body.pathLong,req.body.RF);
+    let item=req.body;
+    let obj={userId:item.userId,
+        name:item.name,
+        from:item.from,
+        to:item.to,
+        pathLat:item.pathLat,
+        pathLong:item.pathLong,
+        RF:item.RF,
+        createdAt:new Date(),
+        likedislike:{},
+        numLikes:0,
+        numDislikes:0};
+        await Post.create(obj);
     res.status(StatusCodes.CREATED).json({ review });
 }
 module.exports={

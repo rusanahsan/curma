@@ -77,7 +77,7 @@ export default function AllReviews(){
     const postReview=async(obj)=>{
         obj.UIPS=JSON.stringify(obj.pathLat)+JSON.stringify(obj.pathLong);
         try {
-            /*console.log(location);
+            console.log(location);
             obj.location=location;
             setShowAlert({show:true,msg:['Waiting for server response....'],variant:`warning`})
             const response=await axios.post(`/api/v1/train`,obj,{
@@ -103,19 +103,21 @@ export default function AllReviews(){
                 `Error% tolerance:30`,
                 `Review Type: ${result.good_review?"GENUINE":"FAKE"}`],
                 variant:'success'})
+                setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
             }
             else{
                 setShowAlert({show:true,msg:[success?"Instant Validators ran successfully":"Instant Validators failed",
                 spam?"It is a spam review":"It is not a spam review",
                 localValidity?"Review is genuine due to user's location":"User's Location is not close enough to identify it as genuine review",
                 `${result.msg}`],variant:'danger'})
-            }*/
+                setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
+            }
             await axios.post(`/api/v1/reviews`,obj,{
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 }});
-            setShowAlert({show:true,msg:[`Your reviews was successfully submitted`],variant:'success'});
-            setTimeout(()=>setShowAlert({...showAlert,show:false}),3000);
+            setTimeout(()=>setShowAlert({show:true,msg:[`Your reviews was successfully submitted`],variant:'success'}),3000);
+            setTimeout(()=>setShowAlert({...showAlert,show:false}),6000);
         }catch (error) {
             setShowAlert({show:true,msg:[`Something went wrong!!!
             Redirecting you to the login/register page.....`],variant:'danger'});

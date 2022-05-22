@@ -8,7 +8,9 @@ const authRouter = require('./routes/auth');
 const latlngRouter=require('./routes/latlng');
 const trainRouter=require('./routes/train');
 const validateRouter=require('./routes/validators')
+const getPostsRouter=require('./routes/posts')
 const getAllRouter=require('./routes/getAll')
+const getUserId=require('./routes/getUserId')
 const errorHandlerMiddleware = require('./middleware/error-handler');
 const authenticateUser = require('./middleware/authentication');
 const path=require('path');
@@ -22,6 +24,8 @@ app.use('/api/v1/getAllRouter',getAllRouter);
 app.use('/api/v1/latlng',authenticateUser,latlngRouter);
 app.use('/api/v1/train',trainRouter);
 app.use('/api/v1/validate',validateRouter);
+app.use('/api/v1/posts',authenticateUser,getPostsRouter)
+app.use('/api/v1/userid',authenticateUser,getUserId)
 //serve static assets  if in production
 if(process.env.NODE_ENV === 'production'){
     app.use(express.static('./client/build'));

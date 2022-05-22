@@ -65,14 +65,14 @@ function removeReviews(resp,ind1,ind2,flag){
             return Math.abs(RF2[ind1]-RF2[ind2])-Math.abs(RF1[ind1]-RF1[ind2]);
     })
     while(condition()){
-        response.poll();
+        response.pop();
     }
     return response;
 }
 const validateCorrelation=async(req,res)=>{
     let highest=await Path.find({}).sort({UNID:-1}).limit(1);
     highest=highest[0].UNID;
-    for(let i=0;i<=highest;i++){
+    for(let i=0;i<=0;i++){
         const response=await Review.find({UNID:i});
         let resp=removeReviews(response,0,2,1);
         //await Review.deleteMany({UNID:i});

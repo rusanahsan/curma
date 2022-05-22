@@ -43,13 +43,21 @@ const trainModel=async(req,res)=>{
     else{
         result.ml_success=true;
         result.msg='Successfully ran Random forest regression';
-        result.random_forest=(await Train.find({UNID:rec[0].UNID}))[0].RF;
+        //result.random_forest=await Train.find({UNID:rec[0].UNID})[0].RF;
+        const random_forest=await Train.find({UNID:rec[0].UNID});
         result.error_percentage=0;
-        RF.map((item,index)=>{
-            result.error_percentage+=Math.abs(item-result.random_forest[index])
-        })
-        result.error_percentage=result.error_percentage/25*100;
-        result.good_review=result.error_percentage<=30?true:false;
+        if(random_forest.length==0){
+            result.ml_success=false;
+            result.msg='This route is not trained yet';
+        }
+        else{
+            result.random_forest=random_forest[0].RF;
+            RF.map((item,index)=>{
+                result.error_percentage+=Math.abs(item-result.random_forest[index])
+            })
+            result.error_percentage=result.error_percentage/25*100;
+            result.good_review=result.error_percentage<=30?true:false;
+        }
     }
     //let arr=[];
     /*for(let i=0;i<record.length;i++){

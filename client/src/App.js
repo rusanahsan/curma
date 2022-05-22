@@ -13,6 +13,7 @@ import Graph2 from "./pages/Graph2"
 import Graph3 from "./pages/Graph3"
 import Graph4 from "./pages/Graph4"
 import SubGraph1 from "./pages/Subgraph1"
+import Social from "./pages/Social/Social";
 function App() {
   return (
     <Router>
@@ -49,6 +50,9 @@ function App() {
         </Route>
         <Route path="/subgraph1">
           <SubGraph1/>
+        </Route>
+        <Route path="/social">
+          <Social/>
         </Route>
         <Route path="*">
           <Error />
