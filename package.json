@@ -15,6 +15,7 @@
   "author": "Rusan Ahsan",
   "license": "ISC",
   "dependencies": {
+    "@botpress/node-svm": "0.0.3",
     "bcryptjs": "^2.4.3",
     "brain.js": "^2.0.0-beta.15",
     "calculate-correlation": "^1.2.3",
@@ -29,10 +30,20 @@
     "http-status-codes": "^2.2.0",
     "joi": "^17.5.0",
     "jsonwebtoken": "^8.5.1",
+    "machine_learning": "^0.1.1",
+    "ml": "^6.0.0",
+    "ml-cart": "^2.1.1",
     "ml-knn": "^3.0.0",
     "ml-logistic-regression": "^2.0.0",
     "ml-random-forest": "^2.1.0",
+    "ml-regression-exponential": "^2.1.0",
+    "ml-regression-multivariate-linear": "^2.0.3",
+    "ml-regression-polynomial": "^2.2.0",
+    "ml-regression-power": "^2.0.0",
+    "ml-regression-robust-polynomial": "^3.0.0",
     "ml-regression-simple-linear": "^2.0.3",
+    "ml-regression-theil-sen": "^2.0.0",
+    "ml-svm": "^2.1.2",
     "mongoose": "^6.0.13"
   },
   "devDependencies": {

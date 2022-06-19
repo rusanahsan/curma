@@ -98,7 +98,7 @@ export default function Graph2() {
                     }
                 }
             }
-          },
+        },
           plugins: {
             datalabels: {
                 font: {

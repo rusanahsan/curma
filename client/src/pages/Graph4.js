@@ -14,6 +14,7 @@ async function getAllReviews(){
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             }});
+        let count=0;
         review.data.reviews.map((item)=>{
             if(!obj[item.userId]){
                 obj[item.userId]=new Set();
@@ -21,11 +22,14 @@ async function getAllReviews(){
             }
             else
                 obj[item.userId].add(item.UNID);
-            userName[item.userId]=item.name;
+            if(!userName[item.userId]){
+                userName[item.userId]="Person"+count;
+                count++;
+            }
         })
         numRoutes=[];user=[];
         Object.keys(obj).map((item,index)=>{
-            user.push(userName[item].split(" ")[0]);
+            user.push(userName[item]);
             numRoutes.push(Array.from(obj[item]).length);
         })
     }
